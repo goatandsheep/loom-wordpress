@@ -38,14 +38,12 @@ function App() {
     console.log(`${vidPos[0]}, ${vidPos[1]}`);
   }
 
-  // useEffect(() => {
-  //   if (!(vidButton && vidButton.moveBubble )) {
-  //     console.log('nope')
-  //     return;
-  //   } else {
-  //     console.log('posi', `${vidPos[0]}, ${vidPos[1]}`)
-  //   }
-  // }, [vidPos[0], vidPos[1], vidButton]);
+  const endGame = () => {
+    setTimeout(() => {
+      vidButton.endRecording()
+    }, 1000)
+  }
+
   useEffect(() => {
     async function setupLoom() {
       const { supported, error } = await isSupported();
@@ -64,7 +62,8 @@ function App() {
       const { configureButton } = await setup({
         apiKey: API_KEY,
         config: {
-          bubbleResizable: false
+          bubbleResizable: false,
+          insertButtonText: 'Restart game'
         }
       });
 
@@ -72,10 +71,11 @@ function App() {
 
       setVidButton(sdkButton);
 
-      sdkButton.on("insert-click", async video => {
-        const { html } = await oembed(video.sharedUrl, { width: 400 });
-        setVideoHTML(html);
-      });
+      // sdkButton.on("insert-click", async video => {
+      //   const { html } = await oembed(video.sharedUrl, { width: 400 });
+      //   console.log('finito')
+      //   setVideoHTML(html);
+      // });
 
       sdkButton.on("bubble-move", async vidPosit => {
         const newX = vidPosit.x
@@ -86,6 +86,10 @@ function App() {
           console.log('naan!')
         }
         console.log('bubble-move', `${vidPosit.x}, ${vidPosit.y}`);
+      })
+
+      sdkButton.on('recording-start', async () => {
+        button.focus();
       })
 
       sdkButton.on('bubble-drag-end', async () => {
@@ -111,8 +115,9 @@ function App() {
           Learn React
         </a>
       </header>
-      <button id={BUTTON_ID} onKeyDown={handleMove} >Record</button>
+      <button id={BUTTON_ID} onKeyDown={handleMove} >Start Game</button>
       <div dangerouslySetInnerHTML={{ __html: videoHTML }}></div>
+      <button onClick={endGame}>End Game</button>
     </div>
   );
 }
