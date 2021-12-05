@@ -8,6 +8,10 @@ import { setup, isSupported } from "@loomhq/loom-sdk";
 const API_KEY = process.env.REACT_APP_API_KEY;
 const BUTTON_ID = "loom-sdk-button";
 
+function BlocksSection () {
+  return (<div className="danger-block">hello</div>)
+} 
+
 function App() {
   // const [videoHTML, setVideoHTML] = useState("");
   const [vidButton, setVidButton] = useState({});
@@ -35,7 +39,32 @@ function App() {
     } else {
       console.log('naan!')
     }
-    console.log(`${vidPos[0]}, ${vidPos[1]}`);
+    // console.log(`${vidPos[0]}, ${vidPos[1]}`);
+  }
+
+  const checkDead = (x, y) => {
+    console.log('cam', `${x}, ${y}`);
+    const playerY = parseInt(y);
+    const playerX = parseInt(x);
+    const playerHeight = 192;
+    const playerWidth = 192;
+
+    // TODO: check why the Y is not including the height
+
+    const blocks = document.querySelectorAll('.danger-block');
+    for (let i = 0, len = blocks.length; i < len; i++) {
+      const blockRect = blocks[i].getBoundingClientRect();
+      const blockY = parseInt(blockRect.y);
+      const blockX = parseInt(blockRect.x);
+      const blockHeight = parseInt(blockRect.height);
+      const blockWidth = parseInt(blockRect.width);
+
+      if (((playerHeight - playerY) > blockY) && ((0 - playerY) < (blockY - blockHeight)) && ((playerX + playerWidth) > blockX) && playerX < (blockX + blockWidth)) {
+        endGame()
+      } else {
+        console.log('block', `${blockX}, ${blockY}`);
+      }
+    }
   }
 
   const endGame = () => {
@@ -85,7 +114,8 @@ function App() {
         } else {
           console.log('naan!')
         }
-        console.log('bubble-move', `${vidPosit.x}, ${vidPosit.y}`);
+        // console.log('bubble-move', `${vidPosit.x}, ${vidPosit.y}`);
+        checkDead(newX, newY);
       })
 
       sdkButton.on('recording-start', async () => {
@@ -103,21 +133,11 @@ function App() {
     <div className="App App-header" >
       <header className="">
         <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
       </header>
       <button id={BUTTON_ID} onKeyDown={handleMove} >Start Game</button>
       {/* <div dangerouslySetInnerHTML={{ __html: videoHTML }}></div> */}
       <button onClick={endGame}>End Game</button>
+      <BlocksSection />
     </div>
   );
 }
