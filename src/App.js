@@ -3,13 +3,13 @@ import './App.css';
 
 import { useEffect, useState } from "react";
 import { setup, isSupported } from "@loomhq/loom-sdk";
-import { oembed } from "@loomhq/loom-embed";
+// import { oembed } from "@loomhq/loom-embed";
 
 const API_KEY = process.env.REACT_APP_API_KEY;
 const BUTTON_ID = "loom-sdk-button";
 
 function App() {
-  const [videoHTML, setVideoHTML] = useState("");
+  // const [videoHTML, setVideoHTML] = useState("");
   const [vidButton, setVidButton] = useState({});
   const [vidPos, setVidPos] = useState([0, 0]);
 
@@ -116,7 +116,7 @@ function App() {
         </a>
       </header>
       <button id={BUTTON_ID} onKeyDown={handleMove} >Start Game</button>
-      <div dangerouslySetInnerHTML={{ __html: videoHTML }}></div>
+      {/* <div dangerouslySetInnerHTML={{ __html: videoHTML }}></div> */}
       <button onClick={endGame}>End Game</button>
     </div>
   );
