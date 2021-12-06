@@ -1,4 +1,4 @@
-import logo from './logo.svg';
+// import logo from './logo.svg';
 import './App.css';
 
 import { useEffect, useState } from "react";
@@ -7,6 +7,8 @@ import { setup, isSupported } from "@loomhq/loom-sdk";
 
 const API_KEY = process.env.REACT_APP_API_KEY;
 const BUTTON_ID = "loom-sdk-button";
+const startButton = document.getElementById(BUTTON_ID);
+const endButton = document.getElementById('end-button')
 
 function BlocksSection () {
   return (<div className="danger-block">die on hover</div>)
@@ -40,7 +42,7 @@ function App() {
     } else {
       console.log('naan!')
     }
-    // console.log(`${vidPos[0]}, ${vidPos[1]}`);
+    console.log(`${vidPos[0]}, ${vidPos[1]}`);
   }
 
   const checkDead = (x, y) => {
@@ -68,14 +70,15 @@ function App() {
   }
 
   const endGame = () => {
-    console.log('end game')
-    setTimeout(() => {
+    // setTimeout(() => {
       try {
+        console.log('end game', vidButton)
         vidButton.endRecording()
       } catch (e) {
         console.error('error ending game', e)
+        console.log(endButton)
       }
-    }, 100)
+    // }, 100)
   }
 
   useEffect(() => {
@@ -113,6 +116,7 @@ function App() {
       //   setVideoHTML(html);
       // });
 
+      // let moveHandler = async vidPosit => {
       sdkButton.on("bubble-move", async vidPosit => {
         const newX = vidPosit.x
         const newY = vidPosit.y
@@ -121,11 +125,23 @@ function App() {
         } else {
           console.log('naan!')
         }
-        // console.log('bubble-move', `${vidPosit.x}, ${vidPosit.y}`);
+        console.log('bubble-move');
         checkDead(newX, newY);
+      }
+      );
+
+      // const moveHandlerBtn = moveHandler.bind(sdkButton);
+      // sdkButton.on("bubble-move", moveHandlerBtn)
+
+      sdkButton.on('start', async () => {
+        vidButton.moveBubble({x: 0, y: 192 - window.innerHeight / 2 })
+        setVidPos([0, (192 - window.innerHeight / 2)]);
       })
 
       sdkButton.on('recording-start', async () => {
+        // console.log('vidpos', `${vidPos[0]}, ${vidPos[1]}`)
+        // setVidPos([0, 0]);
+        checkDead(0, 0);
         button.focus();
       })
 
@@ -140,7 +156,7 @@ function App() {
     <div className="App App-header" >
       <button id={BUTTON_ID} onKeyDown={handleMove} >Start Game</button>
       {/* <div dangerouslySetInnerHTML={{ __html: videoHTML }}></div> */}
-      <button onClick={endGame}>End Game</button>
+      <button id="end-button" onClick={endGame}>End Game</button>
       <BlocksSection />
     </div>
   );
