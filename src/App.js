@@ -9,7 +9,7 @@ const API_KEY = process.env.REACT_APP_API_KEY;
 const BUTTON_ID = "loom-sdk-button";
 
 function BlocksSection () {
-  return (<div className="danger-block">hello</div>)
+  return (<div className="danger-block">die on hover</div>)
 } 
 
 function App() {
@@ -36,6 +36,7 @@ function App() {
     if (!(isNaN(newX) || isNaN(newY))) {
       setVidPos([newX, newY]);
       vidButton.moveBubble({ x: newX, y: newY });
+      checkDead(newX, newY);
     } else {
       console.log('naan!')
     }
@@ -43,13 +44,14 @@ function App() {
   }
 
   const checkDead = (x, y) => {
-    console.log('cam', `${x}, ${y}`);
-    const playerY = parseInt(y);
-    const playerX = parseInt(x);
     const playerHeight = 192;
+    // const marginY = 36;
+    const playerY = window.innerHeight - playerHeight + parseInt(y);
+    const playerX = parseInt(x);
     const playerWidth = 192;
+    // console.log('cam', `${playerX}, ${playerY}`);
 
-    // TODO: check why the Y is not including the height
+    // TODO: check why the Y is not including the height. Y is from the top
 
     const blocks = document.querySelectorAll('.danger-block');
     for (let i = 0, len = blocks.length; i < len; i++) {
@@ -59,18 +61,21 @@ function App() {
       const blockHeight = parseInt(blockRect.height);
       const blockWidth = parseInt(blockRect.width);
 
-      if (((playerHeight - playerY) > blockY) && ((0 - playerY) < (blockY - blockHeight)) && ((playerX + playerWidth) > blockX) && playerX < (blockX + blockWidth)) {
+      if (((playerY + playerHeight) > blockY) && (playerY < (blockY + blockHeight)) && ((playerX + playerWidth) > blockX) && playerX < (blockX + blockWidth)) {
         endGame()
-      } else {
-        console.log('block', `${blockX}, ${blockY}`);
       }
     }
   }
 
   const endGame = () => {
+    console.log('end game')
     setTimeout(() => {
-      vidButton.endRecording()
-    }, 1000)
+      try {
+        vidButton.endRecording()
+      } catch (e) {
+        console.error('error ending game', e)
+      }
+    }, 100)
   }
 
   useEffect(() => {
@@ -97,6 +102,8 @@ function App() {
       });
 
       const sdkButton = configureButton({ element: button });
+
+
 
       setVidButton(sdkButton);
 
@@ -131,9 +138,6 @@ function App() {
   }, []);
   return (
     <div className="App App-header" >
-      <header className="">
-        <img src={logo} className="App-logo" alt="logo" />
-      </header>
       <button id={BUTTON_ID} onKeyDown={handleMove} >Start Game</button>
       {/* <div dangerouslySetInnerHTML={{ __html: videoHTML }}></div> */}
       <button onClick={endGame}>End Game</button>
