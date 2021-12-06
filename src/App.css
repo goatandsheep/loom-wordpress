@@ -23,6 +23,13 @@
   justify-content: center;
 }
 
+.danger-block {
+  background-image: url("static/chimney.png");
+  background-size: cover;
+  width: 100px;
+  min-height: 200px;
+}
+
 .App-link {
   color: #61dafb;
 }

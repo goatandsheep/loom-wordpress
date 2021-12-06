@@ -12,13 +12,66 @@ const BUTTON_ID = "loom-sdk-button";
 const endButton = document.getElementById('end-button')
 
 function BlocksSection () {
-  return (<div className="danger-block">die on hover</div>)
+
+  let items = []
+
+  const computeNextBlock = () => {
+    const newHeight = Math.random() * 400
+    items = []
+    for (let i = 0; i < 10; i++) {
+      items.push(
+      <div
+        className="danger-block"
+        style={{
+          height: newHeight,
+        }}
+      ></div>)
+    }
+  }
+  // computeNextBlock()
+  return (
+    <div style={{ display: 'flex', justifyContent: 'space-between', height: '100%', position: 'fixed'}}>
+      { items }
+    </div>)
 } 
+
+
+function ShowScore (props) {
+  const val = ((Date(props.currTime) - Date(props.startTime)) / 1000) || 0;
+  return <span>{val}</span>
+}
 
 function App() {
   // const [videoHTML, setVideoHTML] = useState("");
   const [vidButton, setVidButton] = useState({});
   const [vidPos, setVidPos] = useState([0, 0]);
+  const [showMessage, setShowMessage] = useState(false);
+  const [gameInfo, setGameInfo] = useState({
+    startTime: 0,
+    currTime: 0,
+    timer: {},
+  });
+
+  window.onblur = () => {
+    setShowMessage(true);
+    // debug:
+    // setShowMessage(false);
+  }
+
+  window.onfocus = () => {
+    setShowMessage(false);
+    // debug:
+    // setShowMessage(true);
+  }
+
+  const startWatch = () => {
+    const startTime = new Date().getTime();
+    const timer = setInterval(() => {
+      const currTime = new Date().getTime();
+      setGameInfo(Object.assign({}, gameInfo, { currTime, startTime, timer }));
+    }, 1000)
+    setGameInfo(Object.assign({}, gameInfo, { timer, startTime }));
+  }
 
   const handleMove = (e) => {
 
@@ -28,10 +81,10 @@ function App() {
       newY = vidPos[1] - 10;
     } else if (e.key === "s" || e.key === "ArrowDown") {
       newY = vidPos[1] + 10;
-    } else if (e.key === "a" || e.key === "ArrowLeft") {
-      newX = vidPos[0] - 10;
-    } else if (e.key === "d" || e.key === "ArrowRight") {
-      newX = vidPos[0] + 10;
+    // } else if (e.key === "a" || e.key === "ArrowLeft") {
+    //   newX = vidPos[0] - 10;
+    // } else if (e.key === "d" || e.key === "ArrowRight") {
+    //   newX = vidPos[0] + 10;
     } else {
       return;
     }
@@ -144,10 +197,16 @@ function App() {
         // setVidPos([0, 0]);
         checkDead(0, 0);
         button.focus();
+        startWatch();
       })
 
       sdkButton.on('bubble-drag-end', async () => {
         button.focus();
+      })
+
+      sdkButton.on('complete', async () => {
+        clearInterval(gameInfo.timer)
+        setGameInfo(Object.assign({}, gameInfo, { timer: null }))
       })
     }
 
@@ -155,10 +214,23 @@ function App() {
   }, []);
   return (
     <div className="App App-header" >
+      <dialog style={{ top: '100px', zIndex: 100}} className="nes-dialog is-rounded" open={showMessage}>Tap anywhere to resume game!</dialog>
+      <div style={{ top: 10, position: 'fixed', display: 'flex', justifyContent: 'space-between', minWidth: '85%' }}>
+        <span>Score <ShowScore curr={gameInfo.currTime} start={gameInfo.startTime} /></span>
+        <section className="nes-container with-title" style={{textAlign: 'left'}}>
+          <h3 className="title" style={{backgroundColor: '#3f96cf'}}>Accessibility</h3>
+          <div>Height of next chimney: <span></span></div>
+          <div>Time to next chimney: <span></span></div>
+          <div>Player height: <span>{(vidPos[1] * -1) + 'm'}</span></div>
+        </section>
+      </div>
       <button id={BUTTON_ID} onKeyDown={handleMove} className="nes-btn is-success">Start Game</button>
       {/* <div dangerouslySetInnerHTML={{ __html: videoHTML }}></div> */}
-      <button id="end-button" onClick={endGame} className="nes-btn is-error">End Game</button>
       <BlocksSection />
+      <div style={{ bottom: 10, position: 'fixed', display: 'flex', justifyContent: 'space-between', alignItems: 'center', minWidth: '85%' }}>
+        <span>By Kemal Ahmed</span>
+        <button id="end-button" onClick={endGame} className="nes-btn is-error">End Game</button>
+      </div>
     </div>
   );
 }
