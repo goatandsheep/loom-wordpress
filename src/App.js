@@ -15,19 +15,19 @@ function BlocksSection () {
 
   let items = []
 
-  const computeNextBlock = () => {
-    const newHeight = Math.random() * 400
-    items = []
-    for (let i = 0; i < 10; i++) {
-      items.push(
-      <div
-        className="danger-block"
-        style={{
-          height: newHeight,
-        }}
-      ></div>)
-    }
-  }
+  // const computeNextBlock = () => {
+  //   const newHeight = Math.random() * 400
+  //   items = []
+  //   for (let i = 0; i < 10; i++) {
+  //     items.push(
+  //     <div
+  //       className="danger-block"
+  //       style={{
+  //         height: newHeight,
+  //       }}
+  //     ></div>)
+  //   }
+  // }
   // computeNextBlock()
   return (
     <div style={{ display: 'flex', justifyContent: 'space-between', height: '100%', position: 'fixed'}}>
