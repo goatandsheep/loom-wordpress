@@ -1,5 +1,6 @@
 // import logo from './logo.svg';
 import './App.css';
+import "nes.css/css/nes.min.css";
 
 import { useEffect, useState } from "react";
 import { setup, isSupported } from "@loomhq/loom-sdk";
@@ -7,7 +8,7 @@ import { setup, isSupported } from "@loomhq/loom-sdk";
 
 const API_KEY = process.env.REACT_APP_API_KEY;
 const BUTTON_ID = "loom-sdk-button";
-const startButton = document.getElementById(BUTTON_ID);
+// const startButton = document.getElementById(BUTTON_ID);
 const endButton = document.getElementById('end-button')
 
 function BlocksSection () {
@@ -133,10 +134,10 @@ function App() {
       // const moveHandlerBtn = moveHandler.bind(sdkButton);
       // sdkButton.on("bubble-move", moveHandlerBtn)
 
-      sdkButton.on('start', async () => {
-        vidButton.moveBubble({x: 0, y: 192 - window.innerHeight / 2 })
-        setVidPos([0, (192 - window.innerHeight / 2)]);
-      })
+      // sdkButton.on('start', async () => {
+      //   vidButton.moveBubble({x: 0, y: 192 - window.innerHeight / 2 })
+      //   setVidPos([0, (192 - window.innerHeight / 2)]);
+      // })
 
       sdkButton.on('recording-start', async () => {
         // console.log('vidpos', `${vidPos[0]}, ${vidPos[1]}`)
@@ -154,9 +155,9 @@ function App() {
   }, []);
   return (
     <div className="App App-header" >
-      <button id={BUTTON_ID} onKeyDown={handleMove} >Start Game</button>
+      <button id={BUTTON_ID} onKeyDown={handleMove} className="nes-btn is-success">Start Game</button>
       {/* <div dangerouslySetInnerHTML={{ __html: videoHTML }}></div> */}
-      <button id="end-button" onClick={endGame}>End Game</button>
+      <button id="end-button" onClick={endGame} className="nes-btn is-error">End Game</button>
       <BlocksSection />
     </div>
   );

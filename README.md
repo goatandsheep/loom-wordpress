@@ -72,3 +72,4 @@ This section has moved here: [https://facebook.github.io/create-react-app/docs/t
 ## Credits
 
 * favicon https://favicon.io/emoji-favicons/snowflake/
+* fonts and styles: NES.CSS
