@@ -2,7 +2,7 @@
 import './App.css';
 import "nes.css/css/nes.min.css";
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useImperativeHandle, forwardRef } from "react";
 import { setup, isSupported } from "@loomhq/loom-sdk";
 // import { oembed } from "@loomhq/loom-embed";
 
@@ -11,29 +11,40 @@ const BUTTON_ID = "loom-sdk-button";
 // const startButton = document.getElementById(BUTTON_ID);
 const endButton = document.getElementById('end-button')
 
-function BlocksSection () {
+function BlocksSectionTemplate (props, ref) {
+
+  // const [blocklist, setBlocklist] = useState([]);
+  const blocklist = useRef([])
 
   let items = []
+  // let items = [(<div className="danger-block chimney"></div>)]
 
-  // const computeNextBlock = () => {
-  //   const newHeight = Math.random() * 400
-  //   items = []
-  //   for (let i = 0; i < 10; i++) {
-  //     items.push(
-  //     <div
+  //     (<div
   //       className="danger-block"
   //       style={{
   //         height: newHeight,
   //       }}
   //     ></div>)
-  //   }
-  // }
-  // computeNextBlock()
+
+
+  const addBlock = () => {
+    console.log('adding block')
+    blocklist.current.push(<div className="danger-block chimney" style={{ right: 0, top: 0, position: 'absolute' }}></div>)
+    blocklist.current.push(<div className="danger-block chimney" style={{ right: 0, bottom: 0, position: 'absolute' }}></div>)
+  }
+  
+    useImperativeHandle(ref, () => ({
+      // each key is connected to `ref` as a method name
+      // they can execute code directly, or call a local method
+      addBlock: () => { addBlock() }
+    }))
   return (
-    <div style={{ display: 'flex', justifyContent: 'space-between', height: '100%', position: 'fixed'}}>
-      { items }
+    <div style={{ display: 'flex', justifyContent: 'space-between', height: '100%', width: '100%', position: 'fixed'}}>
+      <div>{blocklist.current}</div>
     </div>)
-} 
+}
+
+const BlocksSection = forwardRef(BlocksSectionTemplate)
 
 const gravMult = 5
 
@@ -52,6 +63,7 @@ function App() {
   const playerSpeedRef = useRef(0)
   const vidButtonRef = useRef({})
   const vidPosRef = useRef([0, 0])
+  const blocksRef = useRef()
 
   window.onblur = () => {
     setShowMessage(true);
@@ -78,6 +90,13 @@ function App() {
       vidPosRef.current[1] += playerSpeedRef.current;
       // setVidPos([vidPos[0], vidPos[1] + playerSpeedRef.current]);
       vidButtonRef.current.moveBubble({ x: vidPosRef.current[0], y: vidPosRef.current[1] + playerSpeedRef.current });
+
+      const diff = currTime - startTime;
+      const val = 10 * Math.floor(diff / 10); // round to nearest 10
+      // TODO:
+      if (!(val % 1000)) {
+        blocksRef.current.addBlock();
+      }
     }, 50) // update every 50ms or 0.05s
   }
 
@@ -220,7 +239,6 @@ function App() {
       sdkButton.on('recording-start', async () => {
         // console.log('vidpos', `${vidPos[0]}, ${vidPos[1]}`)
         // setVidPos([0, 0]);
-        console.log('hi')
         checkDead(0, 0);
         button.focus();
         startWatch();
@@ -261,8 +279,8 @@ function App() {
       </div>
       <button id={BUTTON_ID} onKeyDown={handleMove} className="nes-btn is-success" style={{ opacity: gameTimerRef.current ? 0 : 1 }}>Start Game</button>
       {/* <div dangerouslySetInnerHTML={{ __html: videoHTML }}></div> */}
-      <BlocksSection />
-      <div style={{ bottom: 10, position: 'fixed', display: 'flex', justifyContent: 'space-between', alignItems: 'center', minWidth: '85%' }}>
+      <BlocksSection ref={blocksRef} style={{ flexDirection: 'column', width: '100%' }} />
+      <div style={{ bottom: 10, position: 'fixed', display: 'flex', justifyContent: 'space-between', alignItems: 'center', minWidth: '85%'}}>
         <span>By Kemal Ahmed</span>
         <button id="end-button" onClick={endGame} className="nes-btn is-error">End Game</button>
       </div>
