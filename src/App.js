@@ -2,7 +2,9 @@
 import './App.css';
 import "nes.css/css/nes.min.css";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState,
+  useCallback
+ } from "react";
 import { setup, isSupported } from "@loomhq/loom-sdk";
 // import { oembed } from "@loomhq/loom-embed";
 
@@ -37,7 +39,9 @@ function BlocksSection () {
 
 
 function ShowScore (props) {
-  const val = ((Date(props.currTime) - Date(props.startTime)) / 1000) || 0;
+  const diff = props.curr - props.start;
+  const val = Math.floor(diff / 1000 || 0);
+  console.log('tick', diff)
   return <span>{val}</span>
 }
 
@@ -46,11 +50,10 @@ function App() {
   const [vidButton, setVidButton] = useState({});
   const [vidPos, setVidPos] = useState([0, 0]);
   const [showMessage, setShowMessage] = useState(false);
-  const [gameInfo, setGameInfo] = useState({
-    startTime: 0,
-    currTime: 0,
-    timer: {},
-  });
+  // const [timerOn, setTimerOn] = useState(false);
+  const [startTime, setStartTime] = useState(NaN);
+  const [currentTime, setCurrentTime] = useState(NaN);
+  const [gameTimer, setGameTimer] = useState(0);
 
   window.onblur = () => {
     setShowMessage(true);
@@ -66,12 +69,31 @@ function App() {
 
   const startWatch = () => {
     const startTime = new Date().getTime();
+    // setTimerOn(true);
+    setStartTime(startTime);
     const timer = setInterval(() => {
       const currTime = new Date().getTime();
-      setGameInfo(Object.assign({}, gameInfo, { currTime, startTime, timer }));
+      setCurrentTime(currTime);
+      // if (!timerOn) {
+      // clearInterval(gameTimer);
+      // clearInterval(timer);
+      // }
     }, 1000)
-    setGameInfo(Object.assign({}, gameInfo, { timer, startTime }));
+    setGameTimer(timer);
   }
+
+  // const closeStartWatch = useCallback(startWatch, [gameTimer]);
+
+  const stopWatchAct = () => {
+    // setTimerOn(false);
+    if (!gameTimer) {
+      console.log('oh no')
+    }
+    clearInterval(gameTimer)
+    setGameTimer(null)
+    // setTimerOn(false);
+  }
+  const stopWatch = useCallback(stopWatchAct, [gameTimer]);
 
   const handleMove = (e) => {
 
@@ -128,12 +150,36 @@ function App() {
       try {
         console.log('end game', vidButton)
         vidButton.endRecording()
+        stopWatch()
       } catch (e) {
         console.error('error ending game', e)
         console.log(endButton)
       }
     // }, 100)
   }
+
+  /*
+  useEffect(() => {
+    if (timerOn) {
+      // startWatch();
+
+      const startTime = new Date().getTime();
+      setStartTime(startTime);
+      const timer = setInterval(() => {
+        const currTime = new Date().getTime();
+        setCurrentTime(currTime);
+      }, 1000)
+      console.log('timer', timer)
+      setGameTimer(timer);
+    } else {
+      stopWatch();
+
+      clearInterval(gameTimer)
+      // setGameTimer(null);
+      setTimerOn(false);
+    }
+  }, [timerOn])
+  */
 
   useEffect(() => {
     async function setupLoom() {
@@ -195,18 +241,30 @@ function App() {
       sdkButton.on('recording-start', async () => {
         // console.log('vidpos', `${vidPos[0]}, ${vidPos[1]}`)
         // setVidPos([0, 0]);
+        console.log('hi')
         checkDead(0, 0);
         button.focus();
         startWatch();
+        // closeStartWatch();
+        // setTimerOn(true);
       })
 
       sdkButton.on('bubble-drag-end', async () => {
         button.focus();
       })
 
+      /*
+      sdkButton.on('lifecycle-update', async(state) => {
+        console.log('lifecycle-update', state)
+      })
+      */
+
+      sdkButton.on('cancel', async () => {
+        stopWatch();
+      })
+
       sdkButton.on('complete', async () => {
-        clearInterval(gameInfo.timer)
-        setGameInfo(Object.assign({}, gameInfo, { timer: null }))
+        stopWatch();
       })
     }
 
@@ -216,7 +274,7 @@ function App() {
     <div className="App App-header" >
       <dialog style={{ top: '100px', zIndex: 100}} className="nes-dialog is-rounded" open={showMessage}>Tap anywhere to resume game!</dialog>
       <div style={{ top: 10, position: 'fixed', display: 'flex', justifyContent: 'space-between', minWidth: '85%' }}>
-        <span>Score <ShowScore curr={gameInfo.currTime} start={gameInfo.startTime} /></span>
+        <span className="danger-block">Score <ShowScore curr={currentTime} start={startTime} /></span>
         <section className="nes-container with-title" style={{textAlign: 'left'}}>
           <h3 className="title" style={{backgroundColor: '#3f96cf'}}>Accessibility</h3>
           <div>Height of next chimney: <span></span></div>
