@@ -2,8 +2,8 @@
 import './App.css';
 import "nes.css/css/nes.min.css";
 
-import { useEffect, useState,
-  useCallback
+import { useEffect, useState, useRef
+  // useCallback
  } from "react";
 import { setup, isSupported } from "@loomhq/loom-sdk";
 // import { oembed } from "@loomhq/loom-embed";
@@ -41,7 +41,8 @@ function BlocksSection () {
 function ShowScore (props) {
   const diff = props.curr - props.start;
   const val = Math.floor(diff / 1000 || 0);
-  console.log('tick', diff)
+  // console.log('tick', diff)
+  console.log('tick', props.gameTimerRef)
   return <span>{val}</span>
 }
 
@@ -53,7 +54,7 @@ function App() {
   // const [timerOn, setTimerOn] = useState(false);
   const [startTime, setStartTime] = useState(NaN);
   const [currentTime, setCurrentTime] = useState(NaN);
-  const [gameTimer, setGameTimer] = useState(0);
+  const gameTimerRef = useRef(null)
 
   window.onblur = () => {
     setShowMessage(true);
@@ -68,32 +69,36 @@ function App() {
   }
 
   const startWatch = () => {
+    console.log('start watch')
     const startTime = new Date().getTime();
     // setTimerOn(true);
     setStartTime(startTime);
-    const timer = setInterval(() => {
+
+    gameTimerRef.current = setInterval(() => {
       const currTime = new Date().getTime();
       setCurrentTime(currTime);
       // if (!timerOn) {
-      // clearInterval(gameTimer);
+      // clearInterval(gameTimerRef);
       // clearInterval(timer);
       // }
     }, 1000)
-    setGameTimer(timer);
   }
 
-  // const closeStartWatch = useCallback(startWatch, [gameTimer]);
+  // const closeStartWatch = useCallback(startWatch, [gameTimerRef]);
 
   const stopWatchAct = () => {
+    console.log('stop watch', gameTimerRef.current)
+
     // setTimerOn(false);
-    if (!gameTimer) {
+    if (!gameTimerRef.current) {
       console.log('oh no')
+    } else {
+      clearInterval(gameTimerRef.current)
+      gameTimerRef.current = null
     }
-    clearInterval(gameTimer)
-    setGameTimer(null)
     // setTimerOn(false);
   }
-  const stopWatch = useCallback(stopWatchAct, [gameTimer]);
+  // const stopWatch = useCallback(stopWatchAct, [gameTimerRef]);
 
   const handleMove = (e) => {
 
@@ -145,12 +150,15 @@ function App() {
     }
   }
 
+  /**
+   * lose!
+   */
   const endGame = () => {
     // setTimeout(() => {
       try {
         console.log('end game', vidButton)
         vidButton.endRecording()
-        stopWatch()
+        stopWatchAct()
       } catch (e) {
         console.error('error ending game', e)
         console.log(endButton)
@@ -170,12 +178,12 @@ function App() {
         setCurrentTime(currTime);
       }, 1000)
       console.log('timer', timer)
-      setGameTimer(timer);
+      setGameTimerRef(timer);
     } else {
       stopWatch();
 
-      clearInterval(gameTimer)
-      // setGameTimer(null);
+      clearInterval(gameTimerRef)
+      // setGameTimerRef(null);
       setTimerOn(false);
     }
   }, [timerOn])
@@ -183,6 +191,7 @@ function App() {
 
   useEffect(() => {
     async function setupLoom() {
+      console.log('_______ setupLoom')
       const { supported, error } = await isSupported();
 
       if (!supported) {
@@ -260,11 +269,11 @@ function App() {
       */
 
       sdkButton.on('cancel', async () => {
-        stopWatch();
+        stopWatchAct();
       })
 
       sdkButton.on('complete', async () => {
-        stopWatch();
+        stopWatchAct();
       })
     }
 
@@ -274,7 +283,7 @@ function App() {
     <div className="App App-header" >
       <dialog style={{ top: '100px', zIndex: 100}} className="nes-dialog is-rounded" open={showMessage}>Tap anywhere to resume game!</dialog>
       <div style={{ top: 10, position: 'fixed', display: 'flex', justifyContent: 'space-between', minWidth: '85%' }}>
-        <span className="danger-block">Score <ShowScore curr={currentTime} start={startTime} /></span>
+        <span className="danger-block">Score <ShowScore curr={currentTime} start={startTime} gameTimerRef={gameTimerRef} /></span>
         <section className="nes-container with-title" style={{textAlign: 'left'}}>
           <h3 className="title" style={{backgroundColor: '#3f96cf'}}>Accessibility</h3>
           <div>Height of next chimney: <span></span></div>
