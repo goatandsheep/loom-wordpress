@@ -91,7 +91,7 @@ function BlocksSectionTemplate (props, ref) {
 
 const BlocksSection = forwardRef(BlocksSectionTemplate)
 
-const gravMult = 5
+const gravMult = 1
 
 function ShowScore (props) {
   const diff = props.curr - props.start;
@@ -168,9 +168,9 @@ function App() {
     let newY = vidPosRef.current[1]
     if (e.key === "w" || e.key === "ArrowUp") {
       // newY = vidPosRef.current[1] - 10;
-      playerSpeedRef.current -= 10 * gravMult
+      playerSpeedRef.current -= 5 * gravMult
     } else if (e.key === "s" || e.key === "ArrowDown") {
-      newY = vidPosRef.current[1] + 10;
+      newY = vidPosRef.current[1] + 5;
     // } else if (e.key === "a" || e.key === "ArrowLeft") {
     //   newX = vidPos[0] - 10;
     // } else if (e.key === "d" || e.key === "ArrowRight") {
