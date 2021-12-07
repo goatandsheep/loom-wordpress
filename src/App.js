@@ -11,12 +11,38 @@ const BUTTON_ID = "loom-sdk-button";
 // const startButton = document.getElementById(BUTTON_ID);
 const endButton = document.getElementById('end-button')
 
+function BlockChimneyTemplate(props, ref) {
+
+  // const [currTime, setCurrTime] = useState(0);
+
+  // useEffect(() => {
+  //   const creationTime = new Date().getTime();
+  //   setCurrTime(creationTime);
+  // }, [])
+  
+  let styleObj = {
+
+    right: 0,
+    // right: (currTime - props.currentTime) / 5,
+    position: 'absolute'
+  }
+  if (props.top) {
+    styleObj.top = 0
+  } else {
+    styleObj.bottom = 0
+  }
+  return (
+  <div className="danger-block chimney" style={styleObj}></div>
+  )
+}
+
+const BlockChimney = forwardRef(BlockChimneyTemplate)
+
 function BlocksSectionTemplate (props, ref) {
 
   // const [blocklist, setBlocklist] = useState([]);
   const blocklist = useRef([])
 
-  let items = []
   // let items = [(<div className="danger-block chimney"></div>)]
 
   //     (<div
@@ -26,20 +52,39 @@ function BlocksSectionTemplate (props, ref) {
   //       }}
   //     ></div>)
 
+  const tickRef = useRef()
 
+
+  // let blocks = 0 // for key
   const addBlock = () => {
     console.log('adding block')
-    blocklist.current.push(<div className="danger-block chimney" style={{ right: 0, top: 0, position: 'absolute' }}></div>)
-    blocklist.current.push(<div className="danger-block chimney" style={{ right: 0, bottom: 0, position: 'absolute' }}></div>)
+    // blocks++
+    blocklist.current.push(<BlockChimney top currentTime={props.currentTime} ref={tickRef} />)
+    // blocks++
+    // blocklist.current.push(<div className="danger-block chimney" style={{ right: 0, bottom: 0, position: 'absolute' }}></div>)
+    blocklist.current.push(<BlockChimney top={false} currentTime={props.currentTime} ref={tickRef} />)
   }
-  
-    useImperativeHandle(ref, () => ({
-      // each key is connected to `ref` as a method name
-      // they can execute code directly, or call a local method
-      addBlock: () => { addBlock() }
-    }))
+
+  const clearBlocks = () => {
+    blocklist.current = []
+  }
+  // TODO: motion
+  // use time at block creation => right: 0
+  // each second, move by 
+
+  useImperativeHandle(ref, () => ({
+    // each key is connected to `ref` as a method name
+    // they can execute code directly, or call a local method
+    addBlock: () => { addBlock() },
+    clearBlocks,
+    tick: () => {
+      if (tickRef.current && tickRef.current.tick) {
+        tickRef.current.tick()
+      }
+    }
+  }))
   return (
-    <div style={{ display: 'flex', justifyContent: 'space-between', height: '100%', width: '100%', position: 'fixed'}}>
+    <div style={{ display: 'flex', justifyContent: 'space-between', height: '100%', width: '100%', position: 'absolute'}}>
       <div>{blocklist.current}</div>
     </div>)
 }
@@ -97,6 +142,8 @@ function App() {
       if (!(val % 1000)) {
         blocksRef.current.addBlock();
       }
+      checkDead(vidPosRef.current[0], vidPosRef.current[1])
+      blocksRef.current.tick();
     }, 50) // update every 50ms or 0.05s
   }
 
@@ -111,6 +158,7 @@ function App() {
       playerSpeedRef.current = 0;
       vidPosRef.current[0] = 0;
       vidPosRef.current[1] = 0;
+      blocksRef.current.clearBlocks();
     }
   }
 
@@ -269,17 +317,17 @@ function App() {
     <div className="App App-header" >
       <dialog style={{ top: '100px', zIndex: 100}} className="nes-dialog is-rounded" open={showMessage}>Tap anywhere to resume game!</dialog>
       <div style={{ top: 10, position: 'fixed', display: 'flex', justifyContent: 'space-between', minWidth: '85%' }}>
-        <span className="danger-block">Score <ShowScore curr={currentTime} start={startTime} gameTimerRef={gameTimerRef} /></span>
+        <span>Score <ShowScore curr={currentTime} start={startTime} gameTimerRef={gameTimerRef} /></span>
         <section className="nes-container with-title" style={{textAlign: 'left'}}>
           <h3 className="title" style={{backgroundColor: '#3f96cf'}}>Accessibility</h3>
-          <div>Height of next chimney: <span></span></div>
+          <div>Height of next chimney: <span>200m</span></div>
           <div>Time to next chimney: <span></span></div>
           <div>Player altitude: <span>{(Math.floor(vidPosRef.current[1] * -1)) + 'm'}</span></div>
         </section>
       </div>
-      <button id={BUTTON_ID} onKeyDown={handleMove} className="nes-btn is-success" style={{ opacity: gameTimerRef.current ? 0 : 1 }}>Start Game</button>
+      <button id={BUTTON_ID} onKeyDown={handleMove} className="nes-btn is-success" style={{ zIndex: 2, opacity: gameTimerRef.current ? 0 : 1 }}>Start Game</button>
       {/* <div dangerouslySetInnerHTML={{ __html: videoHTML }}></div> */}
-      <BlocksSection ref={blocksRef} style={{ flexDirection: 'column', width: '100%' }} />
+      <BlocksSection ref={blocksRef} style={{ flexDirection: 'column', width: '100%' }} currentTime={currentTime} />
       <div style={{ bottom: 10, position: 'fixed', display: 'flex', justifyContent: 'space-between', alignItems: 'center', minWidth: '85%'}}>
         <span>By Kemal Ahmed</span>
         <button id="end-button" onClick={endGame} className="nes-btn is-error">End Game</button>

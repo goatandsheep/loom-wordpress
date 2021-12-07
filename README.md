@@ -73,3 +73,4 @@ This section has moved here: [https://facebook.github.io/create-react-app/docs/t
 
 * favicon https://favicon.io/emoji-favicons/snowflake/
 * fonts and styles: NES.CSS
+* ideas: https://blog.logrocket.com/build-a-game-with-html-css-javascript/

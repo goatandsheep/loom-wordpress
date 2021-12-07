@@ -28,6 +28,16 @@
   background-size: cover;
   width: 100px;
   min-height: 200px;
+  animation: SwingLeft 8s;
+}
+
+@keyframes SwingLeft {
+  from {
+    right: 0;
+  }
+  to {
+    right: 2000px;
+  }
 }
 
 .App-link {
