@@ -58,29 +58,21 @@ function App() {
 
   window.onblur = () => {
     setShowMessage(true);
-    // debug:
-    // setShowMessage(false);
   }
 
   window.onfocus = () => {
     setShowMessage(false);
-    // debug:
-    // setShowMessage(true);
   }
 
   const startWatch = () => {
     console.log('start watch')
     const startTime = new Date().getTime();
-    // setTimerOn(true);
     setStartTime(startTime);
 
     gameTimerRef.current = setInterval(() => {
       const currTime = new Date().getTime();
       setCurrentTime(currTime);
-      // if (!timerOn) {
-      // clearInterval(gameTimerRef);
-      // clearInterval(timer);
-      // }
+
     }, 1000)
   }
 
@@ -254,8 +246,6 @@ function App() {
         checkDead(0, 0);
         button.focus();
         startWatch();
-        // closeStartWatch();
-        // setTimerOn(true);
       })
 
       sdkButton.on('bubble-drag-end', async () => {
