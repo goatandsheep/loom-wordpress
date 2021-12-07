@@ -259,7 +259,7 @@ function App() {
           <div>Player altitude: <span>{(Math.floor(vidPosRef.current[1] * -1)) + 'm'}</span></div>
         </section>
       </div>
-      <button id={BUTTON_ID} onKeyDown={handleMove} className="nes-btn is-success" style={{ opacity: gameTimerRef.current ? '0' : '1' }}>Start Game</button>
+      <button id={BUTTON_ID} onKeyDown={handleMove} className="nes-btn is-success" style={{ opacity: gameTimerRef.current ? 0 : 1 }}>Start Game</button>
       {/* <div dangerouslySetInnerHTML={{ __html: videoHTML }}></div> */}
       <BlocksSection />
       <div style={{ bottom: 10, position: 'fixed', display: 'flex', justifyContent: 'space-between', alignItems: 'center', minWidth: '85%' }}>
